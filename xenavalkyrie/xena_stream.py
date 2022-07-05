@@ -104,7 +104,10 @@ class XenaStream(XenaObject21):
         while body_handler:
             segment = pypacker_2_xena.get(str(body_handler).split('\n')[0].split('.')[-1].lower(), None)
             if segment == 'ethernet' and not body_handler.type:
-                segment = '244'
+                segment = '136'
+            if segment == "255":
+                #segment  = "244"
+                segment = "206"
             if not segment:
                 self.logger.warning(f'pypacker header {segment} not in conversion list')
                 break
@@ -123,7 +126,8 @@ class XenaStream(XenaObject21):
                 ps_headerprotocol[ps_headerprotocol.index('tcp')] = 'tcpcheck'
         self.set_attributes(ps_headerprotocol=' '.join(ps_headerprotocol))
 
-        headers_str = binascii.hexlify(headers.bin())
+        bn = headers.bin()
+        headers_str = binascii.hexlify(bn)
         bin_headers = '0x' + headers_str.decode('utf-8')
         self.set_attributes(ps_packetheader=bin_headers)
 
@@ -304,5 +308,6 @@ pypacker_2_xena = {'ethernet': 'ethernet',
                    'udp': 'udp',
                    'tcp': 'tcp',
                    'icmp': 'icmp',
-                   'dhcp': '39'
+                   'dhcp': '39',
+                   'custom': '255'
                    }
