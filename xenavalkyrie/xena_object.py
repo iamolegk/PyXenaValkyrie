@@ -57,12 +57,18 @@ class XenaObject(TgnObject):
         """
         reservation = self.get_attribute(self.cli_prefix + '_reservation')
         if reservation == 'RESERVED_BY_YOU':
-            return
+            try:
+                self.stop_traffic()
+                return
+            except Exception as e:
+                print(e)
+                print(f"Despite of received RESERVED_BY_YOU:{reservation} failed to stop traffic,try force reserve anyway!")
         elif reservation == 'RESERVED_BY_OTHER' and not force:
             reservedby = self.get_attribute(self.cli_prefix + '_reservedby')
             raise TgnError('Resource {} reserved by {}'.format(self, reservedby))
         self.relinquish()
         self.send_command(self.cli_prefix + '_reservation', 'reserve')
+        self.stop_traffic()
 
     def relinquish(self):
         """ Relinquish object.
@@ -129,10 +135,17 @@ class XenaObject(TgnObject):
         return self.api.get_attributes(self)
 
     def wait_for_states(self, attribute, timeout=40, *states):
-        for _ in range(timeout):
+        for _ in range(timeout*10):
             if self.get_attribute(attribute).lower() in [s.lower() for s in states]:
                 return
-            time.sleep(1)
+            time.sleep(0.1)
+        raise TgnError('{} failed to reach state {}, state is {} after {} seconds'.
+                       format(attribute, states, self.get_attribute(attribute), timeout))
+    async def async_wait_for_states(self, attribute, timeout=40, *states):
+        for _ in range(timeout*10):
+            if self.get_attribute(attribute).lower() in [s.lower() for s in states]:
+                return
+            time.sleep(0.1)
         raise TgnError('{} failed to reach state {}, state is {} after {} seconds'.
                        format(attribute, states, self.get_attribute(attribute), timeout))
 

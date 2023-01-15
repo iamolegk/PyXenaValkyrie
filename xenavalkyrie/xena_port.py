@@ -26,14 +26,17 @@ class XenaPort(XenaObject):
 
     cli_prefix = 'p'
 
-    _info_config_commands = ['p_info', 'p_config', 'p_receivesync', 'ps_indices', 'pr_tplds']
+    _info_config_commands = ['p_info', 'p_config', 'p_receivesync', 'ps_indices', 'pr_tplds','P_MAXHEADERLENGTH']
 
     stats_captions = {'pr_pfcstats': ['total', 'CoS 0', 'CoS 1', 'CoS 2', 'CoS 3', 'CoS 4', 'CoS 5', 'CoS 6', 'CoS 7'],
-                      'pr_total': ['bps', 'pps', 'bytes', 'packets'],
+                      #'pr_total': ['bps', 'pps', 'bytes', 'packets'],
+                      'pr_totalext': ['bps','byteps', 'pps', 'bytes', 'packets','fcs_error','oversize','undersize','jabber'],
                       'pr_notpld': ['bps', 'pps', 'bytes', 'packets'],
                       'pr_extra': ['fcserrors', 'pauseframes', 'arprequests', 'arpreplies', 'pingrequests',
                                    'pingreplies', 'gapcount', 'gapduration'],
-                      'pt_total': ['bps', 'pps', 'bytes', 'packets'],
+                      #'pt_total': ['bps', 'pps', 'bytes', 'packets'],
+                      'pt_totalext': ['bps', 'byteps', 'pps', 'bytes', 'packets', 'fcs_error', 'oversize', 'undersize',
+                                      'jabber'],
                       'pt_extra': ['arprequests', 'arpreplies', 'pingrequests', 'pingreplies', 'injectedfcs',
                                    'injectedseq', 'injectedmis', 'injectedint', 'injectedtid', 'training'],
                       'pt_notpld': ['bps', 'pps', 'bytes', 'packets']}
@@ -192,6 +195,8 @@ class XenaPort(XenaObject):
     #
     # Operations.
     #
+    def start_stop(self, action):
+        self.send_command('p_traffic', action)
 
     def start_traffic(self, blocking=False):
         """ Start port traffic.

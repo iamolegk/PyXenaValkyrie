@@ -100,14 +100,20 @@ class XenaStream(XenaObject21):
         """
 
         body_handler = headers
+        MAX_CUSTOM_SIZE = 64
         ps_headerprotocol = []
         while body_handler:
             segment = pypacker_2_xena.get(str(body_handler).split('\n')[0].split('.')[-1].lower(), None)
             if segment == 'ethernet' and not body_handler.type:
-                segment = '136'
+                segment = '49'
             if segment == "255":
-                #segment  = "244"
-                segment = "206"
+                segment_length = len(body_handler)
+                if body_handler.upper_layer:
+                    segment_length=(segment_length-len(body_handler.upper_layer))
+                while segment_length > MAX_CUSTOM_SIZE:
+                    ps_headerprotocol.append(str(256-MAX_CUSTOM_SIZE))
+                    segment_length -= MAX_CUSTOM_SIZE
+                segment =  str(256-segment_length)
             if not segment:
                 self.logger.warning(f'pypacker header {segment} not in conversion list')
                 break
@@ -309,5 +315,7 @@ pypacker_2_xena = {'ethernet': 'ethernet',
                    'tcp': 'tcp',
                    'icmp': 'icmp',
                    'dhcp': '39',
-                   'custom': '255'
+                   'custom': '255',
+                   'mpls':'MPLS',
+                   'gre':'gre'
                    }
