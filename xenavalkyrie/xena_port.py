@@ -205,14 +205,19 @@ class XenaPort(XenaObject):
 
         :param blocking: True - start traffic and wait until traffic ends, False - start traffic and return.
         """
-        self.session.start_traffic(blocking, self)
+        #TBD OK
+        self.start_stop(1)
+        #self.session.start_traffic(blocking, self)
 
     def stop_traffic(self):
         """ Stop port traffic.
 
         Port -> Stop Traffic
         """
-        self.session.stop_traffic(self)
+        #TBD OK
+        #TBD OK
+        self.start_stop(0)
+        #self.session.stop_traffic(self)
 
     def start_capture(self):
         """ Start capture on port.
